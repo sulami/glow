@@ -9,33 +9,35 @@ module Game.Glow.World (
   step
 ) where
 
+import           Graphics.Gloss.Data.Bitmap (loadBMP)
+import           Graphics.Gloss.Data.Picture (Picture)
+
 -- | The global world state. This holds all the state the game has.
 data World = World {
-  player :: Player -- ^ The player
+  sprites :: [Sprite] -- ^ All currently present sprites
 }
 
 instance Show World where
-  show (World p) = show p
+  show (World s) = show s
 
 -- | Create an inital world state.
 initalWorld :: World
-initalWorld = World $ initalPlayer
+initalWorld = World []
 
 -- | Advance the world for the next frame, using the time passed since the last
 -- one.
 step :: Float -> World -> World
-step delta (World w0) = World w0
+step delta w0 = w0
 
--- | The player datatype, holds everything related to the player.
-data Player = Player {
-  position :: (Float, Float) -- ^ Player coordinates
+-- | Any entity, like enemies. Comparable to classic sprites.
+data Sprite = Sprite {
+  pic :: Picture, -- ^ The picture representation, most likely a BMP
+  position :: (Float, Float), -- ^ The position of the sprite
+  size :: (Float, Float) -- ^ The size of the sprite
 }
 
-instance Show Player where
-  show (Player (x,y)) = unlines [ "Player:",
-                                  "Pos: " ++ show x ++ ", " ++ show y ]
-
--- | Create the inital player data.
-initalPlayer :: Player
-initalPlayer = Player $ (0, 0)
+instance Show Sprite where
+  show (Sprite pic pos siz) = unlines [ "Sprite: " ++ show pic,
+                                        "Pos: " ++ show pos,
+                                        "Size: " ++ show siz ]
 

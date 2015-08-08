@@ -1,3 +1,8 @@
+{-# OPTIONS_HADDOCK ignore-exports #-}
+
+-- | This module contains some utility functions and wrappers around Gloss for
+-- dealing with drawing stuff on the screen.
+
 module Game.Glow.Render (
   render, drawText
 ) where

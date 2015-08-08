@@ -1,12 +1,17 @@
+{-# OPTIONS_HADDOCK ignore-exports #-}
+
+-- | This module contains everything specifig to this game's world, like the
+-- global world state, the entities and such.
+
 module Game.Glow.World (
   World,
   initalWorld,
   step
 ) where
 
--- | The world datatype. Currently only holds a player.
+-- | The global world state. This holds all the state the game has.
 data World = World {
-  player :: Player
+  player :: Player -- ^ The player
 }
 
 instance Show World where
@@ -21,9 +26,9 @@ initalWorld = World $ initalPlayer
 step :: Float -> World -> World
 step delta (World w0) = World w0
 
--- | The player datatype. Currently only holds the position.
+-- | The player datatype, holds everything related to the player.
 data Player = Player {
-  position :: (Float, Float)
+  position :: (Float, Float) -- ^ Player coordinates
 }
 
 instance Show Player where

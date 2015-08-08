@@ -1,5 +1,7 @@
 flags: {}
 packages:
 - '.'
-extra-deps: []
-resolver: lts-2.21
+extra-deps:
+- gloss-1.9.2.1
+- gloss-rendering-1.9.2.1
+resolver: lts-1.15

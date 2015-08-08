@@ -4,6 +4,9 @@ module Game.Glow.Render (
 
 import           Graphics.Gloss.Data.Picture (Picture, text)
 
-render :: (Show a) => a -> Picture
+import           Game.Glow.World (World)
+
+-- | Render the world to a picture we can draw.
+render :: World -> Picture
 render = text . show
 

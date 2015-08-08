@@ -21,5 +21,6 @@ executable glow
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8
                      , gloss
+  ghc-options:         -O2 -threaded
   hs-source-dirs:      src
   default-language:    Haskell2010

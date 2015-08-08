@@ -2,6 +2,8 @@ module Main where
 
 import           Graphics.Gloss
 
+import           Input (handleInput)
+
 main = do play (InWindow "Hello, World!"
                             (1024, 768)
                             (10, 10) )
@@ -9,6 +11,6 @@ main = do play (InWindow "Hello, World!"
             60
             0
             (Text . show)
-            (\_ w -> w)
+            handleInput
             (\t w -> w + t)
 

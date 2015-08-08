@@ -3,6 +3,7 @@ module Main where
 import           Graphics.Gloss
 
 import           Game.Glow.Input (handleInput)
+import           Game.Glow.Render (render)
 
 main = do play (InWindow "Hello, World!"
                             (1024, 768)
@@ -10,7 +11,7 @@ main = do play (InWindow "Hello, World!"
             white
             60
             0
-            (Text . show)
+            render
             handleInput
             (\t w -> w + t)
 

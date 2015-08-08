@@ -28,6 +28,7 @@ executable glow
 
 library
   exposed-modules:     Game.Glow.Input
+                     , Game.Glow.Render
   build-depends:       base >=4.7 && <4.8
                      , gloss
   ghc-options:         -O2 -threaded

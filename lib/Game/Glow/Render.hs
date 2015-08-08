@@ -1,20 +1,29 @@
 module Game.Glow.Render (
-  render
+  render, drawText
 ) where
 
 import           Graphics.Gloss.Data.Color (Color, makeColor)
 import           Graphics.Gloss.Data.Picture (
-  Picture, color, scale, text, translate
+  Picture (Pictures), color, scale, text, translate
   )
 
 import           Game.Glow.World (World)
 
 -- | Render the world to a picture we can draw.
 render :: World -> Picture
-render = color devColor . scale 0.2 0.2 . translate (-1024) 0 . text . show
+render = devColor . scale 0.2 0.2 . translate (-1024) 0 . drawText 150 . show
 
 -- | This is the color for use by dev overlays. It is yellow with an alpha of
 -- 0.8.
-devColor :: Color
-devColor = makeColor 1 0.67 0 0.8
+devColor :: Picture -> Picture
+devColor = color $ makeColor 1 0.67 0 0.8
+
+-- | Properly draw multiline text. Needs the correct line offset to work
+-- properly.
+drawText :: Float -> String -> Picture
+drawText oss s = let l = zip (lines s) [0..]
+                  in Pictures $ map applyOffset l
+  where
+    applyOffset :: (String, Float) -> Picture
+    applyOffset (l,os) = translate 0 (- os * oss) $ text l
 

@@ -24,7 +24,11 @@ step delta (World w0) = World w0
 -- | The player datatype. Currently only holds the position.
 data Player = Player {
   position :: (Float, Float)
-} deriving (Show)
+}
+
+instance Show Player where
+  show (Player (x,y)) = unlines [ "Player:",
+                                  "Pos: " ++ show x ++ ", " ++ show y ]
 
 -- | Create the inital player data.
 initalPlayer :: Player

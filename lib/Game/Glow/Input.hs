@@ -1,4 +1,4 @@
-module Input (
+module Game.Glow.Input (
   handleInput
 ) where
 

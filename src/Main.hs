@@ -2,7 +2,7 @@ module Main where
 
 import           Graphics.Gloss
 
-import           Input (handleInput)
+import           Game.Glow.Input (handleInput)
 
 main = do play (InWindow "Hello, World!"
                             (1024, 768)

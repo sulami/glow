@@ -11,7 +11,9 @@ module Game.Glow.World (
 ) where
 
 import           Graphics.Gloss.Data.Bitmap (loadBMP)
-import           Graphics.Gloss.Data.Picture (Picture (Pictures), circle)
+import           Graphics.Gloss.Data.Picture (
+  Picture (Pictures), circle, translate
+  )
 
 -- | The global world state. This holds all the state the game has.
 data World = World {
@@ -44,7 +46,9 @@ instance Show Sprite where
                                         "Pos: " ++ show pos,
                                         "Size: " ++ show siz ]
 
--- | Create a picture from a sprite.
+-- | Create a picture from a sprite. Automatically translates it to the
+-- position it needs to be in.
 drawSprite :: Sprite -> Picture
-drawSprite = pic
+drawSprite s = let (x,y) = pos s
+                in translate x y $ pic s
 

@@ -12,11 +12,14 @@ import           Graphics.Gloss.Data.Picture (
   Picture (Pictures), color, scale, text, translate
   )
 
-import           Game.Glow.World (World)
+import           Game.Glow.World (World, drawWorld)
 
 -- | Render the world to a picture we can draw.
 render :: World -> Picture
-render = devColor . scale 0.2 0.2 . translate (- 512) 0 . drawText 150 . show
+render w = drawWorld w
+
+  -- dev output
+  -- devColor . scale 0.2 0.2 . translate (- 512) 0 . drawText 150 . show
 
 -- | This is the color for use by dev overlays. It is yellow with an alpha of
 -- 0.8.

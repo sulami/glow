@@ -24,10 +24,10 @@ data World = World {
 initalWorld :: World
 initalWorld = World [ Sprite (circle 12.5) (0,0) (25,25), -- The ball
                       -- Platforms
-                      Sprite (makeBox (100, 20)) (- 50,-200) (100, 20),
-                      Sprite (makeBox (100, 20)) (- 50, 200) (100, 20),
-                      Sprite (makeBox ( 20,100)) (-200,- 50) ( 20,100),
-                      Sprite (makeBox ( 20,100)) ( 200,- 50) ( 20,100)
+                      Sprite (makeBox (100, 20)) (- 50,-210) (100, 20),
+                      Sprite (makeBox (100, 20)) (- 50, 190) (100, 20),
+                      Sprite (makeBox ( 20,100)) (-210,- 50) ( 20,100),
+                      Sprite (makeBox ( 20,100)) ( 190,- 50) ( 20,100)
                       ]
 
 -- | Create a single picture from a world.
@@ -57,7 +57,8 @@ drawSprite :: Sprite -> Picture
 drawSprite s = let (x,y) = pos s
                 in translate x y $ pic s
 
--- | Construct a polygon box using the dimensions.
+-- | Construct a polygon box using the dimensions. They anchor at the bottom
+-- left corner.
 makeBox :: (Float, Float) -> Picture
 makeBox (w,h) = polygon [(0,0), (w,0), (w,h), (0,h)]
 

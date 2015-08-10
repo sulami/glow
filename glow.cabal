@@ -27,7 +27,7 @@ executable glow
   default-language:    Haskell2010
 
 library
-  exposed-modules:     Game.Glow.Input
+  exposed-modules:     Game.Glow.Event
                      , Game.Glow.Render
                      , Game.Glow.World
   build-depends:       base >=4.7 && <4.8

@@ -61,17 +61,17 @@ initalWorld = World
 
 -- | Create a picture from a sprite. Automatically translates it to the
 -- position it needs to be in.
-drawSprite :: Sprite -> IO Picture
-drawSprite s = do let (x,y) = view pos s
-                  return $ translate x y $ view pic s
+drawSprite :: Sprite -> Picture
+drawSprite s = let (x,y) = view pos s
+                in translate x y $ view pic s
 
 -- | Create a single picture from a world.
-drawWorld :: World -> IO Picture
-drawWorld w = do sprs <- mapM drawSprite $ view sprites w
-                 hp <- mapM drawSprite $ view horPlatforms w
-                 vp <- mapM drawSprite $ view verPlatforms w
-                 b <- drawSprite $ view ball w
-                 return $ color white $ Pictures $ concat [sprs, hp, vp, [b]]
+drawWorld :: World -> Picture
+drawWorld w = let sprs = map drawSprite $ view sprites w
+                  hp = map drawSprite $ view horPlatforms w
+                  vp = map drawSprite $ view verPlatforms w
+                  b = drawSprite $ view ball w
+              in color white $ Pictures $ concat [sprs, hp, vp, [b]]
 
 -- | Put together all the info about the world we have and collect it in a
 -- string for making a picture.
@@ -85,8 +85,8 @@ debugWorld w = let hp = map show $ view horPlatforms w
 
 -- | Advance the world for the next frame, using the time passed since the last
 -- one.
-step :: Float -> World -> IO World
-step delta w0 = return $ moveSprites delta w0 & set frametime delta
+step :: Float -> World -> World
+step delta w0 = moveSprites delta w0 & set frametime delta
 
 -- | Move all sprites according to its speed times the time in seconds passed
 -- since the last frame rendered. This only makes sense with

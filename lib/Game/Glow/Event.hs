@@ -12,8 +12,8 @@ import           Graphics.Gloss.Interface.Pure.Game (Event (..))
 import           Game.Glow.World (World, movePlatforms)
 
 -- | Global event handler.
-handleEvent :: Event -> World -> IO World
-handleEvent ev w0 = return $ case ev of
+handleEvent :: Event -> World -> World
+handleEvent ev w0 = case ev of
                       EventKey key state mod (x,y) -> w0
                       EventMotion (x,y)            -> movePlatforms (x,y) w0
                       _                            -> w0

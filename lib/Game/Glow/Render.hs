@@ -15,11 +15,11 @@ import           Graphics.Gloss.Data.Picture (
 import           Game.Glow.World (World, drawWorld, debugWorld)
 
 -- | Render the world to a picture we can draw.
-render :: World -> IO Picture
-render w = do let dbg = translate (-500) 360 $ scale 0.1 0.1 $ devColor
-                        $ drawText 150 $ debugWorld w
-              wp <- drawWorld w
-              return $ Pictures [wp, dbg]
+render :: World -> Picture
+render w = let dbg = translate (-500) 360 $ scale 0.1 0.1 $ devColor
+                     $ drawText 150 $ debugWorld w
+               wp = drawWorld w
+            in Pictures [wp, dbg]
 
   -- dev output
   -- devColor . scale 0.2 0.2 . translate (- 512) 0 . drawText 150 . show

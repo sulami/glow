@@ -62,21 +62,22 @@ initalWorld = World (Sprite (circle 12.5) (0,0) (25,25) (10,20)) -- The ball
 
 -- | Create a picture from a sprite. Automatically translates it to the
 -- position it needs to be in.
-drawSprite :: Sprite -> Picture
-drawSprite s = let (x,y) = view pos s
-                in translate x y $ view pic s
+drawSprite :: Sprite -> IO Picture
+drawSprite s = do let (x,y) = view pos s
+                  return $ translate x y $ view pic s
 
 -- | Create a single picture from a world.
-drawWorld :: World -> Picture
-drawWorld w = Pictures $ [ Pictures $ map drawSprite $ view sprites w,
-                           Pictures $ map drawSprite $ view horPlatforms w,
-                           Pictures $ map drawSprite $ view verPlatforms w,
-                           drawSprite $ view ball w ]
+drawWorld :: World -> IO Picture
+drawWorld w = do sprs <- mapM drawSprite $ view sprites w
+                 hp <- mapM drawSprite $ view horPlatforms w
+                 vp <- mapM drawSprite $ view verPlatforms w
+                 b <- drawSprite $ view ball w
+                 return $ Pictures $ concat [sprs, hp, vp, [b]]
 
 -- | Advance the world for the next frame, using the time passed since the last
 -- one.
-step :: Float -> World -> World
-step delta w0 = moveSprites delta w0
+step :: Float -> World -> IO World
+step delta w0 = return $ moveSprites delta w0
 
 -- | Move all sprites according to its speed times the time in seconds passed
 -- since the last frame rendered. This only makes sense with

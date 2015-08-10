@@ -15,8 +15,8 @@ import           Graphics.Gloss.Data.Picture (
 import           Game.Glow.World (World, drawWorld)
 
 -- | Render the world to a picture we can draw.
-render :: World -> Picture
-render w = drawWorld w
+render :: World -> IO Picture
+render w = drawWorld w >>= return
 
   -- dev output
   -- devColor . scale 0.2 0.2 . translate (- 512) 0 . drawText 150 . show

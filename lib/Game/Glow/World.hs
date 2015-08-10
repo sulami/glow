@@ -14,7 +14,6 @@ module Game.Glow.World (
 import           Control.Lens (
   (&), (+~), _1, _2, makeLenses, mapped, over, set, traverse, view
   )
-import           Graphics.Gloss.Data.Bitmap (loadBMP)
 import           Graphics.Gloss.Data.Picture (
   Picture (Pictures), circle, polygon, translate
   )
@@ -85,8 +84,6 @@ step delta w0 = moveSprites delta w0
 moveSprites :: Float -> World -> World
 moveSprites delta w0 = w0 & over (sprites.mapped) (moveSprite delta)
                           & over ball (moveSprite delta)
-                          -- & (ball.pos._1) +~ (view (ballSpeed._1) w0 * delta)
-                          -- & (ball.pos._2) +~ (view (ballSpeed._2) w0 * delta)
   where
     moveSprite :: Float -> Sprite -> Sprite
     moveSprite delta s0 = let (x,y) = view pos s0

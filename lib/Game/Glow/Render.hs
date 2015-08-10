@@ -16,7 +16,7 @@ import           Game.Glow.World (World, drawWorld, debugWorld)
 
 -- | Render the world to a picture we can draw.
 render :: World -> IO Picture
-render w = do let dbg = translate (-500) 340 $ scale 0.1 0.1 $ devColor
+render w = do let dbg = translate (-500) 360 $ scale 0.1 0.1 $ devColor
                         $ drawText 150 $ debugWorld w
               wp <- drawWorld w
               return $ Pictures [wp, dbg]
@@ -27,7 +27,7 @@ render w = do let dbg = translate (-500) 340 $ scale 0.1 0.1 $ devColor
 -- | This is the color for use by dev overlays. It is yellow with an alpha of
 -- 0.8.
 devColor :: Picture -> Picture
-devColor = color $ makeColor 1 0.67 0 0.8
+devColor = color $ makeColor 1 0.8 0 0.8
 
 -- | Properly draw multiline text. Needs the correct line offset to work
 -- properly. Line height is relative, with 100 being the character size from

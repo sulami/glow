@@ -14,8 +14,9 @@ module Game.Glow.World (
 import           Control.Lens (
   (&), (+~), _1, _2, makeLenses, mapped, over, set, traverse, view
   )
+import           Graphics.Gloss.Data.Color (white)
 import           Graphics.Gloss.Data.Picture (
-  Picture (Pictures), circle, polygon, translate
+  Picture (Pictures), circle, color, polygon, translate
   )
 
 -- | Any entity, like enemies. Comparable to classic sprites.
@@ -39,7 +40,8 @@ data World = World {
   _ball :: !Sprite, -- ^ The ball sprite
   _horPlatforms :: ![Sprite], -- ^ The horizontal platforms
   _verPlatforms :: ![Sprite], -- ^ The vertical platforms
-  _sprites :: ![Sprite] -- ^ All other currently present sprites
+  _sprites :: ![Sprite], -- ^ All other currently present sprites
+  _frametime :: !Float -- ^ The time since the last rendered frame
 } deriving (Show)
 
 makeLenses ''World
@@ -59,6 +61,7 @@ initalWorld = World (Sprite (circle 12.5) (0,0) (25,25) (10,20)) -- The ball
                       Sprite (makeBox ( 20,100)) (-210,- 50) ( 20,100) (0,0),
                       Sprite (makeBox ( 20,100)) ( 190,- 50) ( 20,100) (0,0) ]
                     [] -- Other sprites
+                    0 -- Frametime
 
 -- | Create a picture from a sprite. Automatically translates it to the
 -- position it needs to be in.
@@ -72,7 +75,7 @@ drawWorld w = do sprs <- mapM drawSprite $ view sprites w
                  hp <- mapM drawSprite $ view horPlatforms w
                  vp <- mapM drawSprite $ view verPlatforms w
                  b <- drawSprite $ view ball w
-                 return $ Pictures $ concat [sprs, hp, vp, [b]]
+                 return $ color white $ Pictures $ concat [sprs, hp, vp, [b]]
 
 -- | Put together all the info about the world we have and collect it in a
 -- string for making a picture.
@@ -81,12 +84,13 @@ debugWorld w = let hp = map show $ view horPlatforms w
                    vp = map show $ view verPlatforms w
                    b = show $ view ball w
                    os = map show $ view sprites w
-                in unlines $ b : hp ++ vp ++ os
+                   ft = "FPS: " ++ (show $ 1 / view frametime w)
+                in ft -- unlines $ ft : b : hp ++ vp ++ os
 
 -- | Advance the world for the next frame, using the time passed since the last
 -- one.
 step :: Float -> World -> IO World
-step delta w0 = return $ moveSprites delta w0
+step delta w0 = return $ moveSprites delta w0 & set frametime delta
 
 -- | Move all sprites according to its speed times the time in seconds passed
 -- since the last frame rendered. This only makes sense with

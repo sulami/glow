@@ -16,7 +16,7 @@ import           Control.Lens (
   )
 import           Graphics.Gloss.Data.Color (white)
 import           Graphics.Gloss.Data.Picture (
-  Picture (Pictures), thickCircle, color, polygon, translate
+  Picture (Pictures), circleSolid, color, rectangleSolid, translate
   )
 
 -- | Any entity, like enemies. Comparable to classic sprites.
@@ -46,23 +46,18 @@ data World = World {
 
 makeLenses ''World
 
--- | Construct a polygon box using the dimensions. They anchor at the bottom
--- left corner.
-makeBox :: (Float, Float) -> Picture
-makeBox (w,h) = polygon [(0,0), (w,0), (w,h), (0,h)]
-
 -- | Create an inital world state.
 initalWorld :: World
-initalWorld = World -- The ball
-                    (Sprite (thickCircle 10 20) (0,0) (-10,-10) (10,20))
-                    [ -- Horizontal platforms
-                      Sprite (makeBox (100, 20)) (- 50,-210) (100, 20) (0,0),
-                      Sprite (makeBox (100, 20)) (- 50, 190) (100, 20) (0,0) ]
-                    [ -- Vertical platforms
-                      Sprite (makeBox ( 20,100)) (-210,- 50) ( 20,100) (0,0),
-                      Sprite (makeBox ( 20,100)) ( 190,- 50) ( 20,100) (0,0) ]
-                    [] -- Other sprites
-                    0 -- Frametime
+initalWorld = World
+                (Sprite (circleSolid 20) (0,0) (-10,-10) (10,20)) -- The ball
+                [ -- Horizontal platforms
+                  Sprite (rectangleSolid 100 20) (0,-210) (100, 20) (0,0),
+                  Sprite (rectangleSolid 100 20) (0, 190) (100, 20) (0,0) ]
+                [ -- Vertical platforms
+                  Sprite (rectangleSolid 20 100) (-210,0) ( 20,100) (0,0),
+                  Sprite (rectangleSolid 20 100) ( 190,0) ( 20,100) (0,0) ]
+                [] -- Other sprites
+                0 -- Frametime
 
 -- | Create a picture from a sprite. Automatically translates it to the
 -- position it needs to be in.
@@ -107,9 +102,6 @@ moveSprites delta w0 = w0 & over (sprites.mapped) (moveSprite delta)
 
 -- | Move the platforms according to the (x,y) coordinate tuple supplied.
 movePlatforms :: (Float, Float) -> World -> World
-movePlatforms (x,y) w0 =
-  let psx = head (view horPlatforms w0) & view (size._1)
-      psy = head (view verPlatforms w0) & view (size._2)
-  in w0 & set (horPlatforms.traverse.pos._1) (x - psx / 2)
-        & set (verPlatforms.traverse.pos._2) (y - psy / 2)
+movePlatforms (x,y) w0 = w0 & set (horPlatforms.traverse.pos._1) x
+                            & set (verPlatforms.traverse.pos._2) y
 

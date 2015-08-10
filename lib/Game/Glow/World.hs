@@ -12,7 +12,7 @@ module Game.Glow.World (
 ) where
 
 import           Control.Lens (
-  (&), (+~), _1, _2, makeLenses, set, traverse, view
+  (&), (+~), _1, _2, makeLenses, mapped, over, set, traverse, view
   )
 import           Graphics.Gloss.Data.Bitmap (loadBMP)
 import           Graphics.Gloss.Data.Picture (
@@ -23,13 +23,15 @@ import           Graphics.Gloss.Data.Picture (
 data Sprite = Sprite {
   _pic :: !Picture, -- ^ The picture representation
   _pos :: !(Float, Float), -- ^ The position of the sprite
-  _size :: !(Float, Float) -- ^ The size of the sprite
+  _size :: !(Float, Float), -- ^ The size of the sprite
+  _speed :: !(Float, Float) -- ^ Current speed of the sprite
 }
 
 instance Show Sprite where
-  show (Sprite pic pos siz) = unlines [ "Sprite: " ++ show pic,
-                                        "Pos: " ++ show pos,
-                                        "Size: " ++ show siz ]
+  show (Sprite pic pos siz spd) = unlines [ "Sprite: " ++ show pic,
+                                            "Pos: " ++ show pos,
+                                            "Size: " ++ show siz,
+                                            "Speed: " ++ show spd ]
 
 makeLenses ''Sprite
 
@@ -38,8 +40,7 @@ data World = World {
   _ball :: !Sprite, -- ^ The ball sprite
   _horPlatforms :: ![Sprite], -- ^ The horizontal platforms
   _verPlatforms :: ![Sprite], -- ^ The vertical platforms
-  _sprites :: ![Sprite], -- ^ All other currently present sprites
-  _ballSpeed :: !(Float, Float) -- ^ The speed of the ball along both axes
+  _sprites :: ![Sprite] -- ^ All other currently present sprites
 } deriving (Show)
 
 makeLenses ''World
@@ -51,15 +52,14 @@ makeBox (w,h) = polygon [(0,0), (w,0), (w,h), (0,h)]
 
 -- | Create an inital world state.
 initalWorld :: World
-initalWorld = World (Sprite (circle 12.5) (0,0) (25,25)) -- The ball
+initalWorld = World (Sprite (circle 12.5) (0,0) (25,25) (10,20)) -- The ball
                     [ -- Horizontal platforms
-                      Sprite (makeBox (100, 20)) (- 50,-210) (100, 20),
-                      Sprite (makeBox (100, 20)) (- 50, 190) (100, 20) ]
+                      Sprite (makeBox (100, 20)) (- 50,-210) (100, 20) (0,0),
+                      Sprite (makeBox (100, 20)) (- 50, 190) (100, 20) (0,0) ]
                     [ -- Vertical platforms
-                      Sprite (makeBox ( 20,100)) (-210,- 50) ( 20,100),
-                      Sprite (makeBox ( 20,100)) ( 190,- 50) ( 20,100) ]
+                      Sprite (makeBox ( 20,100)) (-210,- 50) ( 20,100) (0,0),
+                      Sprite (makeBox ( 20,100)) ( 190,- 50) ( 20,100) (0,0) ]
                     [] -- Other sprites
-                    (0,0) -- Ball speed
 
 -- | Create a picture from a sprite. Automatically translates it to the
 -- position it needs to be in.
@@ -77,14 +77,21 @@ drawWorld w = Pictures $ [ Pictures $ map drawSprite $ view sprites w,
 -- | Advance the world for the next frame, using the time passed since the last
 -- one.
 step :: Float -> World -> World
-step delta w0 = moveBall delta w0
+step delta w0 = moveSprites delta w0
 
--- | Modify the world to move the ball according to the current ballspeed. Just
--- like 'step', it needs the time passed since the last frame to be
--- fps-independent.
-moveBall :: Float -> World -> World
-moveBall delta w0 = w0 & (ball.pos._1) +~ (view (ballSpeed._1) w0 * delta)
-                       & (ball.pos._2) +~ (view (ballSpeed._2) w0 * delta)
+-- | Move all sprites according to its speed times the time in seconds passed
+-- since the last frame rendered. This only makes sense with
+-- non-player-controlled sprites, like the ball and enemies.
+moveSprites :: Float -> World -> World
+moveSprites delta w0 = w0 & over (sprites.mapped) (moveSprite delta)
+                          & over ball (moveSprite delta)
+                          -- & (ball.pos._1) +~ (view (ballSpeed._1) w0 * delta)
+                          -- & (ball.pos._2) +~ (view (ballSpeed._2) w0 * delta)
+  where
+    moveSprite :: Float -> Sprite -> Sprite
+    moveSprite delta s0 = let (x,y) = view pos s0
+                              (dx,dy) = view speed s0
+                          in s0 & set pos (x + dx * delta, y + dy * delta)
 
 -- | Move the platforms according to the (x,y) coordinate tuple supplied.
 movePlatforms :: (Float, Float) -> World -> World

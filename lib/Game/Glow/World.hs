@@ -88,6 +88,9 @@ moveBall delta w0 = w0 & (ball.pos._1) +~ (view (ballSpeed._1) w0 * delta)
 
 -- | Move the platforms according to the (x,y) coordinate tuple supplied.
 movePlatforms :: (Float, Float) -> World -> World
-movePlatforms (x,y) w0 = w0 & set (horPlatforms.traverse.pos._1) (x - 50)
-                            & set (verPlatforms.traverse.pos._2) (y - 50)
+movePlatforms (x,y) w0 =
+  let psx = head (view horPlatforms w0) & view (size._1)
+      psy = head (view verPlatforms w0) & view (size._2)
+  in w0 & set (horPlatforms.traverse.pos._1) (x - psx / 2)
+        & set (verPlatforms.traverse.pos._2) (y - psy / 2)
 

@@ -16,7 +16,7 @@ import           Control.Lens (
   )
 import           Graphics.Gloss.Data.Color (white)
 import           Graphics.Gloss.Data.Picture (
-  Picture (Pictures), circle, color, polygon, translate
+  Picture (Pictures), thickCircle, color, polygon, translate
   )
 
 -- | Any entity, like enemies. Comparable to classic sprites.
@@ -53,7 +53,8 @@ makeBox (w,h) = polygon [(0,0), (w,0), (w,h), (0,h)]
 
 -- | Create an inital world state.
 initalWorld :: World
-initalWorld = World (Sprite (circle 12.5) (0,0) (25,25) (10,20)) -- The ball
+initalWorld = World -- The ball
+                    (Sprite (thickCircle 10 20) (0,0) (-10,-10) (10,20))
                     [ -- Horizontal platforms
                       Sprite (makeBox (100, 20)) (- 50,-210) (100, 20) (0,0),
                       Sprite (makeBox (100, 20)) (- 50, 190) (100, 20) (0,0) ]

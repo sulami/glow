@@ -6,7 +6,7 @@
 
 module Game.Glow.World (
   World,
-  initalWorld, drawWorld,
+  initalWorld, drawWorld, debugWorld,
   step, movePlatforms,
   drawSprite
 ) where
@@ -73,6 +73,15 @@ drawWorld w = do sprs <- mapM drawSprite $ view sprites w
                  vp <- mapM drawSprite $ view verPlatforms w
                  b <- drawSprite $ view ball w
                  return $ Pictures $ concat [sprs, hp, vp, [b]]
+
+-- | Put together all the info about the world we have and collect it in a
+-- string for making a picture.
+debugWorld :: World -> String
+debugWorld w = let hp = map show $ view horPlatforms w
+                   vp = map show $ view verPlatforms w
+                   b = show $ view ball w
+                   os = map show $ view sprites w
+                in unlines $ b : hp ++ vp ++ os
 
 -- | Advance the world for the next frame, using the time passed since the last
 -- one.

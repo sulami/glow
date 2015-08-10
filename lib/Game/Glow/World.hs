@@ -19,9 +19,9 @@ import           Graphics.Gloss.Data.Picture (
 
 -- | Any entity, like enemies. Comparable to classic sprites.
 data Sprite = Sprite {
-  _pic :: Picture, -- ^ The picture representation
-  _pos :: (Float, Float), -- ^ The position of the sprite
-  _size :: (Float, Float) -- ^ The size of the sprite
+  _pic :: !Picture, -- ^ The picture representation
+  _pos :: !(Float, Float), -- ^ The position of the sprite
+  _size :: !(Float, Float) -- ^ The size of the sprite
 }
 
 instance Show Sprite where
@@ -33,9 +33,11 @@ makeLenses ''Sprite
 
 -- | The global world state. This holds all the state the game has.
 data World = World {
-  _ball :: Sprite, -- ^ The ball sprite
-  _sprites :: [Sprite], -- ^ All currently present sprites
-  _ballSpeed :: (Float, Float) -- ^ The speed of the ball along both axes
+  _ball :: !Sprite, -- ^ The ball sprite
+  _horPlatforms :: ![Sprite], -- ^ The horizontal platforms
+  _verPlatforms :: ![Sprite], -- ^ The vertical platforms
+  _sprites :: ![Sprite], -- ^ All other currently present sprites
+  _ballSpeed :: !(Float, Float) -- ^ The speed of the ball along both axes
 } deriving (Show)
 
 makeLenses ''World
@@ -48,13 +50,14 @@ makeBox (w,h) = polygon [(0,0), (w,0), (w,h), (0,h)]
 -- | Create an inital world state.
 initalWorld :: World
 initalWorld = World (Sprite (circle 12.5) (0,0) (25,25)) -- The ball
-                    [ -- Platforms
+                    [ -- Horizontal platforms
                       Sprite (makeBox (100, 20)) (- 50,-210) (100, 20),
-                      Sprite (makeBox (100, 20)) (- 50, 190) (100, 20),
+                      Sprite (makeBox (100, 20)) (- 50, 190) (100, 20) ]
+                    [ -- Vertical platforms
                       Sprite (makeBox ( 20,100)) (-210,- 50) ( 20,100),
-                      Sprite (makeBox ( 20,100)) ( 190,- 50) ( 20,100)
-                      ]
-                    (50,50) -- Ball speed
+                      Sprite (makeBox ( 20,100)) ( 190,- 50) ( 20,100) ]
+                    [] -- Other sprites
+                    (0,0) -- Ball speed
 
 -- | Create a picture from a sprite. Automatically translates it to the
 -- position it needs to be in.
@@ -65,6 +68,8 @@ drawSprite s = let (x,y) = view pos s
 -- | Create a single picture from a world.
 drawWorld :: World -> Picture
 drawWorld w = Pictures $ [ Pictures $ map drawSprite $ view sprites w,
+                           Pictures $ map drawSprite $ view horPlatforms w,
+                           Pictures $ map drawSprite $ view verPlatforms w,
                            drawSprite $ view ball w ]
 
 -- | Advance the world for the next frame, using the time passed since the last

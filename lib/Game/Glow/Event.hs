@@ -14,5 +14,7 @@ import           Game.Glow.World (World, movePlatforms)
 -- | Global event handler.
 handleEvent :: Event -> World -> World
 handleEvent ev w0 = case ev of
-                      _ -> w0
+                      EventKey key state mod (x,y) -> w0
+                      EventMotion (x,y)            -> movePlatforms (x,y) w0
+                      _                            -> w0
 

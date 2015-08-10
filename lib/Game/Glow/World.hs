@@ -7,11 +7,13 @@
 module Game.Glow.World (
   World,
   initalWorld, drawWorld,
-  step,
+  step, movePlatforms,
   drawSprite
 ) where
 
-import           Control.Lens ((&), (+~), _1, _2, makeLenses, view)
+import           Control.Lens (
+  (&), (+~), _1, _2, makeLenses, set, traverse, view
+  )
 import           Graphics.Gloss.Data.Bitmap (loadBMP)
 import           Graphics.Gloss.Data.Picture (
   Picture (Pictures), circle, polygon, translate
@@ -83,4 +85,9 @@ step delta w0 = moveBall delta w0
 moveBall :: Float -> World -> World
 moveBall delta w0 = w0 & (ball.pos._1) +~ (view (ballSpeed._1) w0 * delta)
                        & (ball.pos._2) +~ (view (ballSpeed._2) w0 * delta)
+
+-- | Move the platforms according to the (x,y) coordinate tuple supplied.
+movePlatforms :: (Float, Float) -> World -> World
+movePlatforms (x,y) w0 = w0 & set (horPlatforms.traverse.pos._1) (x - 50)
+                            & set (verPlatforms.traverse.pos._2) (y - 50)
 

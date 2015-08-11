@@ -28,9 +28,9 @@ data Sprite = Sprite {
 }
 
 instance Show Sprite where
-  show (Sprite pic pos siz spd) = unlines [ "Sprite: " ++ show pic,
-                                            "Pos: " ++ show pos,
+  show (Sprite pic pos siz spd) = unlines [ "Sprite " ++ show pic ++ ":",
                                             "Size: " ++ show siz,
+                                            "Pos: " ++ show pos,
                                             "Speed: " ++ show spd ]
 
 makeLenses ''Sprite
@@ -76,12 +76,24 @@ drawWorld w = let sprs = map drawSprite $ view sprites w
 -- | Put together all the info about the world we have and collect it in a
 -- string for making a picture.
 debugWorld :: World -> String
-debugWorld w = let hp = map show $ view horPlatforms w
-                   vp = map show $ view verPlatforms w
-                   b = show $ view ball w
-                   os = map show $ view sprites w
+debugWorld w = let h = head $ view horPlatforms w
+                   v = head $ view verPlatforms w
+                   hp = show $ view (pos._1) h
+                   vp = show $ view (pos._2) v
+                   hs = show $ view (speed._1) h
+                   vs = show $ view (speed._2) v
+                   (bpx,bpy) = view (ball.pos) w
+                   (bsx,bsy) = view (ball.speed) w
+                   os = concat $ map show $ view sprites w
                    ft = "FPS: " ++ (show $ 1 / view frametime w)
-                in ft -- unlines $ ft : b : hp ++ vp ++ os
+                in unlines $ [ft,
+                              "Platform Position:", "X: " ++ hp, "Y: " ++ vp,
+                              "Platform Speed:", "X: " ++ hs, "Y: " ++ vs,
+                              "Ball Position:",
+                              "X: " ++ show bpx, "Y: " ++ show bpy,
+                              "Ball Speed:",
+                              "X: " ++ show bsx, "Y: " ++ show bsy,
+                              os]
 
 -- | Advance the world for the next frame, using the time passed since the last
 -- one.

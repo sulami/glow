@@ -7,12 +7,12 @@
 module Game.Glow.World (
   World,
   initalWorld, drawWorld, debugWorld,
-  step, movePlatforms,
+  step, movePlatforms, resizeWorld,
   drawSprite
 ) where
 
 import           Control.Lens (
-  (&), (+~), (*~), _1, _2, makeLenses, mapped, over, set, traverse, view
+  (&), (.~), (+~), (*~), _1, _2, makeLenses, mapped, over, set, traverse, view
   )
 import           Graphics.Gloss.Data.Color (white)
 import           Graphics.Gloss.Data.Picture (
@@ -37,6 +37,7 @@ makeLenses ''Sprite
 
 -- | The global world state. This holds all the state the game has.
 data World = World {
+  _wsize :: !(Int, Int), -- ^ The window size
   _ball :: !Sprite, -- ^ The ball sprite
   _horPlatforms :: ![Sprite], -- ^ The horizontal platforms
   _verPlatforms :: ![Sprite], -- ^ The vertical platforms
@@ -48,7 +49,7 @@ makeLenses ''World
 
 -- | Create an inital world state.
 initalWorld :: World
-initalWorld = World
+initalWorld = World (1024, 768)
                 (Sprite (circleSolid 20) (0,0) (-10,-10) (40,60)) -- The ball
                 [ -- Horizontal platforms
                   Sprite (rectangleSolid 100 20) (0,-210) (100, 20) (0,0),
@@ -58,6 +59,9 @@ initalWorld = World
                   Sprite (rectangleSolid 20 100) ( 190,0) ( 20,100) (0,0) ]
                 [] -- Other sprites
                 0 -- Frametime
+
+resizeWorld :: (Int, Int) -> World -> World
+resizeWorld (w,h) w0 = w0 & wsize .~ (w,h)
 
 -- | Create a picture from a sprite. Automatically translates it to the
 -- position it needs to be in.
@@ -86,7 +90,8 @@ debugWorld w = let h = head $ view horPlatforms w
                    (bsx,bsy) = view (ball.speed) w
                    os = concat $ map show $ view sprites w
                    ft = "FPS: " ++ (show $ 1 / view frametime w)
-                in unlines $ [ft,
+                   ws = "World Size: " ++ show (view wsize w)
+                in unlines $ [ft, ws,
                               "Platform Position:", "X: " ++ hp, "Y: " ++ vp,
                               "Platform Speed:", "X: " ++ hs, "Y: " ++ vs,
                               "Ball Position:",

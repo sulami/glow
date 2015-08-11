@@ -105,6 +105,8 @@ step delta w0 = moveSprites delta w0 & set frametime delta
 -- non-player-controlled sprites, like the ball and enemies.
 moveSprites :: Float -> World -> World
 moveSprites delta w0 = w0 & over (sprites.mapped) (moveSprite delta)
+                          & set (horPlatforms.traverse.speed._1) 0
+                          & set (verPlatforms.traverse.speed._2) 0
                           & over ball (moveSprite delta)
   where
     moveSprite :: Float -> Sprite -> Sprite
@@ -114,6 +116,13 @@ moveSprites delta w0 = w0 & over (sprites.mapped) (moveSprite delta)
 
 -- | Move the platforms according to the (x,y) coordinate tuple supplied.
 movePlatforms :: (Float, Float) -> World -> World
-movePlatforms (x,y) w0 = w0 & set (horPlatforms.traverse.pos._1) x
-                            & set (verPlatforms.traverse.pos._2) y
+movePlatforms (x,y) w0 = let opx = view (pos._1) $ head $ view horPlatforms w0
+                             opy = view (pos._2) $ head $ view verPlatforms w0
+                             dlt = view frametime w0
+                             dx = (x - opx) * 1 / dlt
+                             dy = (y - opy) * 1 / dlt
+                          in w0 & set (horPlatforms.traverse.speed._1) dx
+                                & set (verPlatforms.traverse.speed._2) dy
+                                & set (horPlatforms.traverse.pos._1) x
+                                & set (verPlatforms.traverse.pos._2) y
 

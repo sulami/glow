@@ -98,7 +98,7 @@ debugWorld w = let h = head $ view horPlatforms w
 -- | Advance the world for the next frame, using the time passed since the last
 -- one.
 step :: Float -> World -> World
-step delta w0 = moveSprites delta (checkCollision w0) & set frametime delta
+step delta w0 = moveSprites delta (bounce w0) & set frametime delta
 
 -- | Move all sprites according to its speed times the time in seconds passed
 -- since the last frame rendered. This only makes sense with
@@ -129,10 +129,17 @@ movePlatforms (x,y) w0 = let opx = view (pos._1) $ head $ view horPlatforms w0
                                 & set (horPlatforms.traverse.pos._1) x
                                 & set (verPlatforms.traverse.pos._2) y
 
--- | Check if the ball leaves the controlled area and catch it.
-checkCollision :: World -> World
-checkCollision w0 = let (bx,by) = view (ball.pos) w0
-                        (fx,fy) = (if bx >= 160 || bx <= -180 then -1 else 1,
-                                   if by >= 160 || by <= -180 then -1 else 1)
-                    in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
+-- | Bounce the ball of the platforms.
+bounce :: World -> World
+bounce w0 = let (bx,by) = view (ball.pos) w0
+                (px,py) = (view (pos._1) $ head $ view horPlatforms w0,
+                           view (pos._2) $ head $ view verPlatforms w0)
+                (sx,sy) = (view (speed._1) $ head $ view horPlatforms w0,
+                           view (speed._2) $ head $ view verPlatforms w0)
+                (ix,iy) = ((bx >= 160 || bx <= -180) && abs (py - by) <= 50,
+                           (by >= 160 || by <= -180) && abs (px - bx) <= 50)
+                (fx,fy) = (if ix then -1 else 1, if iy then -1 else 1)
+                (cx,cy) = (if iy then sx/2 else 0, if ix then sy/2 else 0)
+            in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
+                  & (ball.speed._1) +~ cx & (ball.speed._2) +~ cy
 

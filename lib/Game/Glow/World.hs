@@ -12,7 +12,7 @@ module Game.Glow.World (
 ) where
 
 import           Control.Lens (
-  (&), (+~), _1, _2, makeLenses, mapped, over, set, traverse, view
+  (&), (+~), (*~), _1, _2, makeLenses, mapped, over, set, traverse, view
   )
 import           Graphics.Gloss.Data.Color (white)
 import           Graphics.Gloss.Data.Picture (
@@ -49,7 +49,7 @@ makeLenses ''World
 -- | Create an inital world state.
 initalWorld :: World
 initalWorld = World
-                (Sprite (circleSolid 20) (0,0) (-10,-10) (10,20)) -- The ball
+                (Sprite (circleSolid 20) (0,0) (-10,-10) (40,60)) -- The ball
                 [ -- Horizontal platforms
                   Sprite (rectangleSolid 100 20) (0,-210) (100, 20) (0,0),
                   Sprite (rectangleSolid 100 20) (0, 190) (100, 20) (0,0) ]
@@ -98,7 +98,7 @@ debugWorld w = let h = head $ view horPlatforms w
 -- | Advance the world for the next frame, using the time passed since the last
 -- one.
 step :: Float -> World -> World
-step delta w0 = moveSprites delta w0 & set frametime delta
+step delta w0 = moveSprites delta (checkCollision w0) & set frametime delta
 
 -- | Move all sprites according to its speed times the time in seconds passed
 -- since the last frame rendered. This only makes sense with
@@ -128,4 +128,11 @@ movePlatforms (x,y) w0 = let opx = view (pos._1) $ head $ view horPlatforms w0
                                 & set (verPlatforms.traverse.speed._2) dy
                                 & set (horPlatforms.traverse.pos._1) x
                                 & set (verPlatforms.traverse.pos._2) y
+
+-- | Check if the ball leaves the controlled area and catch it.
+checkCollision :: World -> World
+checkCollision w0 = let (bx,by) = view (ball.pos) w0
+                        (fx,fy) = (if bx >= 160 || bx <= -180 then -1 else 1,
+                                   if by >= 160 || by <= -180 then -1 else 1)
+                    in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
 

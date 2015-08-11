@@ -102,7 +102,9 @@ step delta w0 = moveSprites delta w0 & set frametime delta
 
 -- | Move all sprites according to its speed times the time in seconds passed
 -- since the last frame rendered. This only makes sense with
--- non-player-controlled sprites, like the ball and enemies.
+-- non-player-controlled sprites, like the ball and enemies. This also resets
+-- the platform speeds, which is a hacky way to reset them properly when they
+-- are not moving currently.
 moveSprites :: Float -> World -> World
 moveSprites delta w0 = w0 & over (sprites.mapped) (moveSprite delta)
                           & set (horPlatforms.traverse.speed._1) 0
@@ -114,7 +116,8 @@ moveSprites delta w0 = w0 & over (sprites.mapped) (moveSprite delta)
                               (dx,dy) = view speed s0
                           in s0 & set pos (x + dx * delta, y + dy * delta)
 
--- | Move the platforms according to the (x,y) coordinate tuple supplied.
+-- | Move the platforms according to the (x,y) coordinate tuple supplied, and
+-- set the speeds so they can be used for collision detection/ball deflection.
 movePlatforms :: (Float, Float) -> World -> World
 movePlatforms (x,y) w0 = let opx = view (pos._1) $ head $ view horPlatforms w0
                              opy = view (pos._2) $ head $ view verPlatforms w0

@@ -11,6 +11,8 @@ module Game.Glow.World (
   drawSprite
 ) where
 
+import           Data.Maybe (fromJust, isJust)
+
 import           Control.Lens (
   (&), (.~), (+~), (*~), _1, _2, makeLenses, mapped, over, set, traverse, view
   )
@@ -137,17 +139,17 @@ movePlatforms (x,y) w0 = let opx = view (pos._1) $ head $ view horPlatforms w0
 
 -- | Bounce the ball of the platforms.
 bounce :: World -> World
-bounce w0 = let (bx,by) = view (ball.pos) w0
-                (px,py) = (view (pos._1) $ head $ view horPlatforms w0,
-                           view (pos._2) $ head $ view verPlatforms w0)
-                (sx,sy) = (view (speed._1) $ head $ view horPlatforms w0,
-                           view (speed._2) $ head $ view verPlatforms w0)
-                (ix,iy) = ((bx >= 160 || bx <= -180) && abs (py - by) <= 50,
-                           (by >= 160 || by <= -180) && abs (px - bx) <= 50)
-                (fx,fy) = (if ix then -1 else 1, if iy then -1 else 1)
-                (cx,cy) = (if iy then sx/2 else 0, if ix then sy/2 else 0)
-            in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
-                  & (ball.speed._1) +~ cx & (ball.speed._2) +~ cy
+bounce w0 = let maybcol = map (collisionDirection (view ball w0))
+                              (view horPlatforms w0 ++ view verPlatforms w0)
+            in head $ scanr bounceD w0 $ map fromJust $ filter isJust maybcol
+  where
+    bounceD :: Bool -> World -> World
+    bounceD d w0 = let (sx,sy) = (view (speed._1) $ head $ view horPlatforms w0,
+                                  view (speed._2) $ head $ view verPlatforms w0)
+                       (fx,fy) = if not d then (-1,1) else (1,-1)
+                       (cx,cy) = if not d then (0,sy/2) else (sx/2,0)
+                    in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
+                          & (ball.speed._1) +~ cx & (ball.speed._2) +~ cy
 
 -- | Check if two sprites are colliding.
 collision :: Sprite -> Sprite -> Bool

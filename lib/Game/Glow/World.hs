@@ -157,3 +157,18 @@ collision s0 s1 = let (pos0x,pos0y) = view pos s0
                   in abs (pos0x - pos1x) <= siz0x/2 + siz1x/2 &&
                      abs (pos0y - pos1y) <= siz0y/2 + siz1y/2
 
+-- | Check in which direction a collision is happening for bouncing. We do this
+-- by checking in which dimension the overlap is bigger. Returns 'Nothing' if
+-- there is no collision. 'True' means a collision in x-direction, 'False' in
+-- y-direction.
+collisionDirection :: Sprite -> Sprite -> Maybe Bool
+collisionDirection s0 s1 =
+  if collision s0 s1
+    then let (pos0x,pos0y) = view pos s0
+             (siz0x,siz0y) = view size s0
+             (pos1x,pos1y) = view pos s1
+             (siz1x,siz1y) = view size s1
+          in Just $ abs (pos0x - pos1x) - (siz0x/2 + siz1x/2)
+                 <= abs (pos0y - pos1y) - (siz0y/2 + siz1y/2)
+    else Nothing
+

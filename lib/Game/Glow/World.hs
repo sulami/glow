@@ -59,7 +59,11 @@ initalWorld = World (1024, 768)
                 [ -- Vertical platforms
                   Sprite (rectangleSolid 20 100) (-210,0) ( 20,100) (0,0),
                   Sprite (rectangleSolid 20 100) ( 190,0) ( 20,100) (0,0) ]
-                [] -- Other sprites
+                [ -- Other sprites
+                  Sprite (rectangleSolid 600 1) (   0, 300) (600,1) (0,0),
+                  Sprite (rectangleSolid 600 1) (   0,-300) (600,1) (0,0),
+                  Sprite (rectangleSolid 1 600) ( 300,   0) (1,600) (0,0),
+                  Sprite (rectangleSolid 1 600) (-300,   0) (1,600) (0,0) ]
                 0 -- Frametime
 
 -- | Change the world size.
@@ -140,7 +144,8 @@ movePlatforms (x,y) w0 = let opx = view (pos._1) $ head $ view horPlatforms w0
 -- | Bounce the ball of the platforms.
 bounce :: World -> World
 bounce w0 = let maybcol = map (collisionDirection (view ball w0))
-                              (view horPlatforms w0 ++ view verPlatforms w0)
+                              (view horPlatforms w0 ++ view verPlatforms w0
+                              ++ view sprites w0)
             in foldr bounceD w0 $ map fromJust $ filter isJust maybcol
   where
     bounceD :: Bool -> World -> World

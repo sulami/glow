@@ -146,8 +146,8 @@ bounce w0 = let maybcol = map (collisionDirection (view ball w0))
     bounceD :: Bool -> World -> World
     bounceD d w0 = let (sx,sy) = (view (speed._1) $ head $ view horPlatforms w0,
                                   view (speed._2) $ head $ view verPlatforms w0)
-                       (fx,fy) = if not d then (-1,1) else (1,-1)
-                       (cx,cy) = if not d then (0,sy/2) else (sx/2,0)
+                       (fx,fy) = if d then (-1,1) else (1,-1)
+                       (cx,cy) = if d then (0,sy/2) else (sx/2,0)
                     in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
                           & (ball.speed._1) +~ cx & (ball.speed._2) +~ cy
 
@@ -172,6 +172,6 @@ collisionDirection s0 s1 =
              (pos1x,pos1y) = view pos s1
              (siz1x,siz1y) = view size s1
           in Just $ abs (pos0x - pos1x) - (siz0x/2 + siz1x/2)
-                 <= abs (pos0y - pos1y) - (siz0y/2 + siz1y/2)
+                 >= abs (pos0y - pos1y) - (siz0y/2 + siz1y/2)
     else Nothing
 

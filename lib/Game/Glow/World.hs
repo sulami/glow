@@ -44,7 +44,8 @@ data World = World {
   _horPlatforms :: ![Sprite], -- ^ The horizontal platforms
   _verPlatforms :: ![Sprite], -- ^ The vertical platforms
   _sprites :: ![Sprite], -- ^ All other currently present sprites
-  _frametime :: !Float -- ^ The time since the last rendered frame
+  _frametime :: !Float, -- ^ The time since the last rendered frame
+  _totalTime :: !Float -- ^ The total runtime
 } deriving (Show)
 
 makeLenses ''World
@@ -65,6 +66,7 @@ initalWorld = World (1024, 768)
                   Sprite (rectangleSolid 1 600) ( 300,   0) (1,600) (0,0),
                   Sprite (rectangleSolid 1 600) (-300,   0) (1,600) (0,0) ]
                 0 -- Frametime
+                0 -- Total time
 
 -- | Change the world size.
 resizeWorld :: (Int, Int) -> World -> World
@@ -98,7 +100,8 @@ debugWorld w = let h = head $ view horPlatforms w
                    os = concat $ map show $ view sprites w
                    ft = "FPS: " ++ (show $ 1 / view frametime w)
                    ws = "World Size: " ++ show (view wsize w)
-                in unlines $ [ft, ws,
+                   tt = "Time: " ++ show (view totalTime w)
+                in unlines $ [ft, tt, ws,
                               "Platform Position:", "X: " ++ hp, "Y: " ++ vp,
                               "Platform Speed:", "X: " ++ hs, "Y: " ++ vs,
                               "Ball Position:",
@@ -111,6 +114,7 @@ debugWorld w = let h = head $ view horPlatforms w
 -- one.
 step :: Float -> World -> World
 step delta w0 = moveSprites delta (bounce w0) & set frametime delta
+                & totalTime +~ delta
 
 -- | Move all sprites according to its speed times the time in seconds passed
 -- since the last frame rendered. This only makes sense with

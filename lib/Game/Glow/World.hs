@@ -50,7 +50,7 @@ makeLenses ''World
 -- | Create an inital world state.
 initalWorld :: World
 initalWorld = World (1024, 768)
-                (Sprite (circleSolid 20) (0,0) (-10,-10) (40,60)) -- The ball
+                (Sprite (circleSolid 10) (0,0) (20,20) (40,60)) -- The ball
                 [ -- Horizontal platforms
                   Sprite (rectangleSolid 100 20) (0,-210) (100, 20) (0,0),
                   Sprite (rectangleSolid 100 20) (0, 190) (100, 20) (0,0) ]
@@ -60,6 +60,7 @@ initalWorld = World (1024, 768)
                 [] -- Other sprites
                 0 -- Frametime
 
+-- | Change the world size.
 resizeWorld :: (Int, Int) -> World -> World
 resizeWorld (w,h) w0 = w0 & wsize .~ (w,h)
 

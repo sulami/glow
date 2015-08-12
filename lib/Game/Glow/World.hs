@@ -141,7 +141,7 @@ movePlatforms (x,y) w0 = let opx = view (pos._1) $ head $ view horPlatforms w0
 bounce :: World -> World
 bounce w0 = let maybcol = map (collisionDirection (view ball w0))
                               (view horPlatforms w0 ++ view verPlatforms w0)
-            in head $ scanr bounceD w0 $ map fromJust $ filter isJust maybcol
+            in foldr bounceD w0 $ map fromJust $ filter isJust maybcol
   where
     bounceD :: Bool -> World -> World
     bounceD d w0 = let (sx,sy) = (view (speed._1) $ head $ view horPlatforms w0,

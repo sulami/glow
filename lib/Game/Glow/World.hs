@@ -148,3 +148,12 @@ bounce w0 = let (bx,by) = view (ball.pos) w0
             in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
                   & (ball.speed._1) +~ cx & (ball.speed._2) +~ cy
 
+-- | Check if two sprites are colliding.
+collision :: Sprite -> Sprite -> Bool
+collision s0 s1 = let (pos0x,pos0y) = view pos s0
+                      (siz0x,siz0y) = view size s0
+                      (pos1x,pos1y) = view pos s1
+                      (siz1x,siz1y) = view size s1
+                  in abs (pos0x - pos1x) <= siz0x/2 + siz1x/2 &&
+                     abs (pos0y - pos1y) <= siz0y/2 + siz1y/2
+

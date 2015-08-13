@@ -153,7 +153,7 @@ bounce w0 = let maybCol = map (`collisionDirection` (view ball w0))
             in foldr bounce w0 $ map fromJust $ filter isJust maybCol
   where
     bounce :: (Float, Float) -> World -> World
-    bounce ns w0 = w0 & (ball.speed) .~ ns
+    bounce ns w0 = w0 & (ball.speed) .~ (clampSpeed 1000 ns)
 
 -- | Check if two sprites are colliding.
 collision :: Sprite -> Sprite -> Bool
@@ -186,4 +186,14 @@ collisionDirection s0 s1 =
                               if basey < 0 then 1 else 0.5)
           in Just (spd1x * basex + spd0x * corrx,spd1y * basey + spd0y * corry)
     else Nothing
+
+-- | Limit some arbitrary speed to a maximum value supplied, while maintaining
+-- the angle.
+clampSpeed :: Float -> (Float, Float) -> (Float, Float)
+clampSpeed lim (x0,y0) = if abs x0 <= lim && abs y0 <= lim
+                         then (x0,y0)
+                         else let dx = x0 / lim
+                                  dy = y0 / lim
+                                  fd = max dx dy
+                              in (x0 / fd, y0 / fd)
 

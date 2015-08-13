@@ -180,9 +180,10 @@ collisionDirection s0 s1 =
              (spd1x,spd1y) = view speed s1
              (basex,basey) = if abs (pos0x - pos1x) - (siz0x/2 + siz1x/2)
                              >= abs (pos0y - pos1y) - (siz0y/2 + siz1y/2)
-                             then (-1,1) else (1,-1)
-             (corrx,corry) = (if basex < 0 then 1.5 else 0.5,
-                              if basey < 0 then 1.5 else 0.5)
+                             then if spd0x * spd1x > 0 then (1,1) else (-1,1)
+                             else if spd0y * spd1y > 0 then (1,1) else (1,-1)
+             (corrx,corry) = (if basex < 0 then 1 else 0.5,
+                              if basey < 0 then 1 else 0.5)
           in Just (spd1x * basex + spd0x * corrx,spd1y * basey + spd0y * corry)
     else Nothing
 

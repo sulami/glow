@@ -145,27 +145,15 @@ movePlatforms (x,y) w0 = let opx = view (pos._1) $ head $ view horPlatforms w0
                                 & set (horPlatforms.traverse.pos._1) x
                                 & set (verPlatforms.traverse.pos._2) y
 
--- | Bounce the ball of the platforms.
+-- | Bounce the ball of the platforms (and everything else).
 bounce :: World -> World
-bounce w0 = let maybColP = map (collisionDirection (view ball w0))
-                               (view horPlatforms w0 ++ view verPlatforms w0)
-                w1 = foldr bounceP w0 $ map fromJust $ filter isJust maybColP
-                maybColS = map (collisionDirection (view ball w0))
-                               (view sprites w0)
-            in foldr bounceS w1 $ map fromJust $ filter isJust maybColS
+bounce w0 = let maybCol = map (`collisionDirection` (view ball w0))
+                              (view horPlatforms w0 ++ view verPlatforms w0
+                               ++ view sprites w0)
+            in foldr bounce w0 $ map fromJust $ filter isJust maybCol
   where
-    bounceP :: Bool -> World -> World
-    bounceP d w0 = let (sx,sy) = (view (speed._1) $ head $ view horPlatforms w0,
-                                  view (speed._2) $ head $ view verPlatforms w0)
-                       (fx,fy) = if d then (-1,1) else (1,-1)
-                       (cx,cy) = if d then (0,sy/2) else (sx/2,0)
-                       (bx,by) = if d then (sx,0) else (0,sy)
-                    in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
-                          & (ball.speed._1) +~ cx & (ball.speed._2) +~ cy
-                          & (ball.speed._1) +~ bx & (ball.speed._2) +~ by
-    bounceS :: Bool -> World -> World
-    bounceS d w0 = let (fx,fy) = if d then (-1,1) else (1,-1)
-                    in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
+    bounce :: (Float, Float) -> World -> World
+    bounce ns w0 = w0 & (ball.speed) .~ ns
 
 -- | Check if two sprites are colliding.
 collision :: Sprite -> Sprite -> Bool
@@ -178,16 +166,23 @@ collision s0 s1 = let (pos0x,pos0y) = view pos s0
 
 -- | Check in which direction a collision is happening for bouncing. We do this
 -- by checking in which dimension the overlap is bigger. Returns 'Nothing' if
--- there is no collision. 'True' means a collision in x-direction, 'False' in
--- y-direction.
-collisionDirection :: Sprite -> Sprite -> Maybe Bool
+-- there is no collision. Otherwise the new speeds for both axes of the second
+-- sprite passed. Also factors in sprite speed for pushing sprites and shoving
+-- them.
+collisionDirection :: Sprite -> Sprite -> Maybe (Float, Float)
 collisionDirection s0 s1 =
   if collision s0 s1
     then let (pos0x,pos0y) = view pos s0
              (siz0x,siz0y) = view size s0
+             (spd0x,spd0y) = view speed s0
              (pos1x,pos1y) = view pos s1
              (siz1x,siz1y) = view size s1
-          in Just $ abs (pos0x - pos1x) - (siz0x/2 + siz1x/2)
-                 >= abs (pos0y - pos1y) - (siz0y/2 + siz1y/2)
+             (spd1x,spd1y) = view speed s1
+             (basex,basey) = if abs (pos0x - pos1x) - (siz0x/2 + siz1x/2)
+                             >= abs (pos0y - pos1y) - (siz0y/2 + siz1y/2)
+                             then (-1,1) else (1,-1)
+             (corrx,corry) = (if basex < 0 then 1.5 else 0.5,
+                              if basey < 0 then 1.5 else 0.5)
+          in Just (spd1x * basex + spd0x * corrx,spd1y * basey + spd0y * corry)
     else Nothing
 

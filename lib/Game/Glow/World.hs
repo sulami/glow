@@ -147,18 +147,25 @@ movePlatforms (x,y) w0 = let opx = view (pos._1) $ head $ view horPlatforms w0
 
 -- | Bounce the ball of the platforms.
 bounce :: World -> World
-bounce w0 = let maybcol = map (collisionDirection (view ball w0))
-                              (view horPlatforms w0 ++ view verPlatforms w0
-                              ++ view sprites w0)
-            in foldr bounceD w0 $ map fromJust $ filter isJust maybcol
+bounce w0 = let maybColP = map (collisionDirection (view ball w0))
+                               (view horPlatforms w0 ++ view verPlatforms w0)
+                w1 = foldr bounceP w0 $ map fromJust $ filter isJust maybColP
+                maybColS = map (collisionDirection (view ball w0))
+                               (view sprites w0)
+            in foldr bounceS w1 $ map fromJust $ filter isJust maybColS
   where
-    bounceD :: Bool -> World -> World
-    bounceD d w0 = let (sx,sy) = (view (speed._1) $ head $ view horPlatforms w0,
+    bounceP :: Bool -> World -> World
+    bounceP d w0 = let (sx,sy) = (view (speed._1) $ head $ view horPlatforms w0,
                                   view (speed._2) $ head $ view verPlatforms w0)
                        (fx,fy) = if d then (-1,1) else (1,-1)
                        (cx,cy) = if d then (0,sy/2) else (sx/2,0)
+                       (bx,by) = if d then (sx,0) else (0,sy)
                     in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
                           & (ball.speed._1) +~ cx & (ball.speed._2) +~ cy
+                          & (ball.speed._1) +~ bx & (ball.speed._2) +~ by
+    bounceS :: Bool -> World -> World
+    bounceS d w0 = let (fx,fy) = if d then (-1,1) else (1,-1)
+                    in w0 & (ball.speed._1) *~ fx & (ball.speed._2) *~ fy
 
 -- | Check if two sprites are colliding.
 collision :: Sprite -> Sprite -> Bool

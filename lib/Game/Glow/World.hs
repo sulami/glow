@@ -45,7 +45,8 @@ data World = World {
   _verPlatforms :: ![Sprite], -- ^ The vertical platforms
   _sprites :: ![Sprite], -- ^ All other currently present sprites
   _frametime :: !Float, -- ^ The time since the last rendered frame
-  _totalTime :: !Float -- ^ The total runtime
+  _totalTime :: !Float, -- ^ The total runtime
+  _points :: !Int -- ^ Points
 } deriving (Show)
 
 makeLenses ''World
@@ -67,6 +68,7 @@ initalWorld = World (1024, 768)
                   Sprite (rectangleSolid 1 600) (-300,   0) (1,600) (0,0) ]
                 0 -- Frametime
                 0 -- Total time
+                0 -- Points
 
 -- | Change the world size.
 resizeWorld :: (Int, Int) -> World -> World
@@ -101,7 +103,8 @@ debugWorld w = let h = head $ view horPlatforms w
                    ft = "FPS: " ++ (show $ 1 / view frametime w)
                    ws = "World Size: " ++ show (view wsize w)
                    tt = "Time: " ++ show (view totalTime w)
-                in unlines $ [ft, tt, ws,
+                   pt = "Points: " ++ show (view points w)
+                in unlines $ [ft, tt, pt, ws,
                               "Platform Position:", "X: " ++ hp, "Y: " ++ vp,
                               "Platform Speed:", "X: " ++ hs, "Y: " ++ vs,
                               "Ball Position:",
@@ -154,6 +157,7 @@ bounce w0 = let maybCol = map (`collisionDirection` (view ball w0))
   where
     bounce :: (Float, Float) -> World -> World
     bounce ns w0 = w0 & (ball.speed) .~ (clampSpeed 1000 ns)
+                      & points +~ 1
 
 -- | Check if two sprites are colliding.
 collision :: Sprite -> Sprite -> Bool

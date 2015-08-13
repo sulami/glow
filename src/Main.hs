@@ -10,7 +10,7 @@ import           Game.Glow.World (initalWorld, step)
 
 main = play (InWindow ("Glow " ++ showVersion version) (1024, 768) (10, 10))
           black                                         -- background
-          60                                            -- fps
+          300                                           -- fps
           initalWorld                                   -- inital state
           render                                        -- rendering function
           handleEvent                                   -- event handler
